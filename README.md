@@ -77,4 +77,6 @@ case3 subscription with subtopic and msg
 
 ## Redis
 
+A wrapper for lettuce, but with auto byte conversion.
+
 ## Database
