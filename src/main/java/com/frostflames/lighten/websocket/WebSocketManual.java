@@ -1,39 +1,32 @@
-# lighten
+package com.frostflames.lighten.websocket;
 
-lighten is a set of comprehensive brainless Java 8 libraries covers WebSocket, Kafka, Redis and more
+import io.reactivex.disposables.Disposable;
 
-You need JRE 1.8 to make it work
+import java.time.Duration;
 
-## IMPORTANT WARNINGS
+public class WebSocketManual {
 
-1.  This library is designed for shorten development time, 
-    so It enforces you to use some libraries like rxJava.
+    public static void main(String[] args) throws InterruptedException {
 
-2.  The performance is the second class in this library, brainless and convenient for use is first class
+        //simpleDirectSubscription();
+        //simpleSubTopicSubscription();
+        //subscriptionWithSubscriptionMsg();
 
-## Websocket
+    }
 
-This component can auto handle failure and reconnect to your websocket in the fly (including re-send subscription message)
+    // case 1 simple direct subscription
+    private static void simpleDirectSubscription() throws InterruptedException {
+        Duration duration = Duration.ofMinutes(1);
+        LightenWebSocketClient lightenWebSocketClient
+                = new LightenWebSocketClient("wss://stream.binance.com:9443/ws/btcusdt@depth10@100ms", duration);
 
-case1 simple direct subscription
+        Disposable subscribtion =
+                lightenWebSocketClient.listenToTopic("", false).subscribe(System.out::println);
+        Thread.sleep(1000 * 5);
+        subscribtion.dispose();
+    }
 
-`
-
-    private static void simpleDirectSubscription() throws InterruptedException {         
-         Duration duration = Duration.ofMinutes(1);
-         LightenWebSocketClient lightenWebSocketClient
-                 = new LightenWebSocketClient("wss://stream.binance.com:9443/ws/btcusdt@depth10@100ms", duration);
-         Disposable subscribtion =
-                 lightenWebSocketClient.listenToTopic("", false).subscribe(System.out::println);
-         Thread.sleep(1000 * 5);
-         subscribtion.dispose();
-     }
-`
-
-case2 simple direct subscription with subtopic
-
-`
-
+    // case 2 simple direct subscription with subtopic
     private static void simpleSubTopicSubscription() throws InterruptedException {
         Duration duration = Duration.ofMinutes(1);
         LightenWebSocketClient lightenWebSocketClient
@@ -45,12 +38,8 @@ case2 simple direct subscription with subtopic
         Thread.sleep(1000 * 5);
         subscribtion.dispose();
     }
-`
 
-case3 subscription with subtopic and msg
-
-`
-
+    // case 3 subscription with subtopic and msg
     private static void subscriptionWithSubscriptionMsg() throws InterruptedException {
         Duration duration = Duration.ofMinutes(1);
         LightenWebSocketClient lightenWebSocketClient
@@ -71,10 +60,5 @@ case3 subscription with subtopic and msg
         subscribtion.dispose();
 
     }
-`
 
-## Kafka
-
-## Redis
-
-## Database
+}

@@ -13,7 +13,9 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class LightenWebSocketClient {
@@ -29,9 +31,10 @@ public class LightenWebSocketClient {
     private final Map<String, String> topic2subscribtionTextMsgMap;
     private final Map<String, ByteString> topic2subscribtionBinaryMsgMap;
 
+    private final Set<Integer> nonAutoReconnectCodeSet;
 
     /**
-     *
+     * Please refer to Manual for help and usage.
      * @param endpoint base endpoint
      * @param pintInterval ping interval
      */
@@ -53,6 +56,11 @@ public class LightenWebSocketClient {
         topic2websocketMap = new HashMap<>();
         topic2subscribtionTextMsgMap = new HashMap<>();
         topic2subscribtionBinaryMsgMap = new HashMap<>();
+
+        nonAutoReconnectCodeSet = new HashSet<>();
+        nonAutoReconnectCodeSet.add(400);
+        nonAutoReconnectCodeSet.add(1000);
+
         logger.info(endpoint + " init");
     }
 
@@ -71,6 +79,7 @@ public class LightenWebSocketClient {
 
         AtomicReference<String> stringAtomicReference = new AtomicReference<>(topic);
         PublishProcessor<String> publishProcessor = PublishProcessor.create();
+        topic2streamMap.put(topic, publishProcessor);
         subscribeHelper(topic, isBinaryType);
 
         return publishProcessor
@@ -79,15 +88,19 @@ public class LightenWebSocketClient {
                 .toFlowable(BackpressureStrategy.LATEST);
     }
 
-    public void sendTextMsg(String topic, String payload) {
-        topic = normalizeTopic(topic);
+    public void sendTextMsg(String topic, String payload, boolean shouldNormalize) {
+        if (shouldNormalize) {
+            topic = normalizeTopic(topic);
+        }
 
         this.topic2websocketMap.get(topic).send(payload);
         this.topic2subscribtionTextMsgMap.put(topic, payload);
     }
 
-    public void sendBinaryMsg(String topic, byte[] payload) {
-        topic = normalizeTopic(topic);
+    public void sendBinaryMsg(String topic, byte[] payload, boolean shouldNormalize) {
+        if (shouldNormalize) {
+            topic = normalizeTopic(topic);
+        }
 
         ByteString byteString = new ByteString(payload);
         this.topic2websocketMap.get(topic).send(byteString);
@@ -150,10 +163,12 @@ public class LightenWebSocketClient {
                 subscribeHelper(topic,isBinary);
                 if (isBinary) {
                     topic2subscribtionBinaryMsgMap.forEach((topic, msg) -> {
-                        sendBinaryMsg(topic, msg.toByteArray());
+                        sendBinaryMsg(topic, msg.toByteArray(), false);
                     });
                 } else {
-                    topic2subscribtionTextMsgMap.forEach(LightenWebSocketClient.this::sendTextMsg);
+                    topic2subscribtionTextMsgMap.forEach((topic, msg) -> {
+                        sendTextMsg(topic, msg, false);
+                    });
                 }
             }
         }
@@ -162,29 +177,34 @@ public class LightenWebSocketClient {
         public void onClosed(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
             super.onClosed(webSocket, code, reason);
             LOGGER.debug("onClosed {} {} {}",code, reason, topic);
-            reconnect();
+            if (!nonAutoReconnectCodeSet.contains(code)) {
+                reconnect();
+            }
         }
 
         @Override
         public void onClosing(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
             super.onClosing(webSocket, code, reason);
             LOGGER.debug("onClosing {} {} {}",code, reason, topic);
-            reconnect();
-
+            if (!nonAutoReconnectCodeSet.contains(code)) {
+                reconnect();
+            }
         }
 
         @Override
         public void onFailure(@NotNull WebSocket webSocket, @NotNull Throwable t, @Nullable Response response) {
             super.onFailure(webSocket, t, response);
-            LOGGER.debug("onFailure {} {} {}",t.getMessage(), response, topic);
-            reconnect();
-
+            LOGGER.error("onFailure", t);
+            LOGGER.debug("onFailure reason {}\n{}\ntopic {}",t.getMessage(), response, topic);
+            if (response == null || !nonAutoReconnectCodeSet.contains(response.code())) {
+                reconnect();
+            }
         }
 
         @Override
         public void onMessage(@NotNull WebSocket webSocket, @NotNull String text) {
             super.onMessage(webSocket, text);
-            PublishProcessor<String> textStream = topic2streamMap.get(endpoint);
+            PublishProcessor<String> textStream = topic2streamMap.get(topic);
             if (textStream.hasSubscribers()) {
                 textStream.onNext(text);
             }
@@ -193,7 +213,7 @@ public class LightenWebSocketClient {
         @Override
         public void onMessage(@NotNull WebSocket webSocket, @NotNull ByteString bytes) {
             super.onMessage(webSocket, bytes);
-            PublishProcessor<String> textStream = topic2streamMap.get(endpoint);
+            PublishProcessor<String> textStream = topic2streamMap.get(topic);
             if (textStream.hasSubscribers()) {
                 textStream.onNext(bytes.utf8());
             }
