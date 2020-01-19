@@ -1,4 +1,4 @@
-# lighten [![Build Status](https://travis-ci.com/a4501150/lighten.svg?branch=master)](https://travis-ci.com/a4501150/lighten)
+# lighten [![Build Status](https://travis-ci.com/a4501150/lighten.svg?branch=master)](https://travis-ci.com/a4501150/lighten) [![Coverage Status](https://coveralls.io/repos/github/a4501150/lighten/badge.svg?branch=master)](https://coveralls.io/github/a4501150/lighten?branch=master)
 
 lighten is a set of comprehensive brainless Java 8 libraries covers WebSocket, Kafka, Redis and more
 
