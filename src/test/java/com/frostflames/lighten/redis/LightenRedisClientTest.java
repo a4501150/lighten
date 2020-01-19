@@ -36,7 +36,6 @@ class LightenRedisClientTest {
         ConcurrentHashMap<String, ConcurrentHashMap<String, String>> obtainedMap = lightenRedisClientUnderTest2.get("mapTesting");
 
         Assertions.assertEquals(map.toString(), obtainedMap.toString());
-
     }
 
     @Test
