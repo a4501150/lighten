@@ -20,7 +20,7 @@ class LightenKafkaClientTest {
         // Setup
 
         // Run the test
-        final Flowable<String> result = lightenKafkaClientUnderTest.listenToTopic("topic");
+        final Flowable<String> result = lightenKafkaClientUnderTest.listenToTopic("topic.1");
 
         // Verify the results
         result.subscribe().dispose();
