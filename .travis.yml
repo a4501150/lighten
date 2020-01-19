@@ -2,3 +2,6 @@ language: java
 
 before_script:
   - sudo redis-server /etc/redis/redis.conf --port 6379
+
+after_success:
+  - mvn clean test jacoco:report coveralls:report
