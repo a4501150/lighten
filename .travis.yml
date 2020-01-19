@@ -4,10 +4,10 @@ jdk:
   - openjdk8
 
 install: true
-script: mvn clean install -DskipTests=true
+script: mvn clean install -DskipTests=true && mvn test jacoco:report coveralls:report
 
 before_script:
   - sudo redis-server /etc/redis/redis.conf --port 6379
 
-after_success:
-  - mvn test jacoco:report coveralls:report
+#after_success:
+#  - mvn test jacoco:report coveralls:report

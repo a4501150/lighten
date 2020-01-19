@@ -80,10 +80,10 @@ case3 subscription with subtopic and msg
 A wrapper on top of official producer / consumer API.
 
 ```java
-LightenKafkaClient client = new LightenKafkaClient("127.0.0,1");
+LightenKafkaClient client = new LightenKafkaClient("127.0.0.1");
 
 // consumer
-client.initConsumer("groupID", "offsetResetType", false, false);
+client.initConsumer("groupID", "latest", false, false);
 Flowable<String> result = lightenKafkaClientUnderTest.listenToTopic("topic");
 
 result.dispose(); // free resource and cutoff stream

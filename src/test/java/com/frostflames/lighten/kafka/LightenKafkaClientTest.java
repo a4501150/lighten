@@ -10,17 +10,9 @@ class LightenKafkaClientTest {
 
     @BeforeEach
     void setUp() {
-        lightenKafkaClientUnderTest = new LightenKafkaClient("bootstrapServers");
-    }
-
-    @Test
-    void testInitConsumer() {
-        // Setup
-
-        // Run the test
-        lightenKafkaClientUnderTest.initConsumer("groupID", "offsetResetType", false, false);
-
-        // Verify the results
+        lightenKafkaClientUnderTest = new LightenKafkaClient("127.0.0.1");
+        lightenKafkaClientUnderTest.initProducer("clientID");
+        lightenKafkaClientUnderTest.initConsumer("groupID", "latest", false, false);
     }
 
     @Test
@@ -29,16 +21,6 @@ class LightenKafkaClientTest {
 
         // Run the test
         final Flowable<String> result = lightenKafkaClientUnderTest.listenToTopic("topic");
-
-        // Verify the results
-    }
-
-    @Test
-    void testInitProducer() {
-        // Setup
-
-        // Run the test
-        lightenKafkaClientUnderTest.initProducer("clientID");
 
         // Verify the results
     }
