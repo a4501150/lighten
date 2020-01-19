@@ -18,7 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
+import java.io.Serializable;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 public class  LightenRedisClient <K, V> {
@@ -100,20 +102,44 @@ public class  LightenRedisClient <K, V> {
     }
 
     private static class RedisByteCodec <K, V> implements RedisCodec <K, V> {
+
+        private boolean isSerializable(Object object) {
+            return object instanceof Serializable;
+        }
+
         @Override
         public K decodeKey(ByteBuffer byteBuffer) {
-            ByteSerializationWrapper<K> wrapper = SerializationUtils.deserialize(byteBuffer.array());
-            return wrapper.getObject();
+            byte[] arr = new byte[byteBuffer.remaining()];
+            byteBuffer.get(arr);
+            K key = SerializationUtils.deserialize(arr);
+
+            if (key instanceof ByteSerializationWrapper) {
+                ByteSerializationWrapper<K> wrapper = (ByteSerializationWrapper<K>)key;
+                return wrapper.getObject();
+            } else {
+                return key;
+            }
         }
 
         @Override
         public V decodeValue(ByteBuffer byteBuffer) {
-            ByteSerializationWrapper<V> wrapper = SerializationUtils.deserialize(byteBuffer.array());
-            return wrapper.getObject();
+            byte[] arr = new byte[byteBuffer.remaining()];
+            byteBuffer.get(arr);
+
+            V value = SerializationUtils.deserialize(arr);
+            if (value instanceof ByteSerializationWrapper) {
+                ByteSerializationWrapper<V> wrapper = (ByteSerializationWrapper<V>)value;
+                return wrapper.getObject();
+            } else {
+                return value;
+            }
         }
 
         @Override
         public ByteBuffer encodeKey(K k) {
+            if (isSerializable(k)) {
+                return ByteBuffer.wrap(SerializationUtils.serialize((Serializable) k));
+            }
             ByteSerializationWrapper<K> wrapper = new ByteSerializationWrapper<>(k);
             byte[] array = SerializationUtils.serialize(wrapper);
             return ByteBuffer.wrap(array);
@@ -121,6 +147,9 @@ public class  LightenRedisClient <K, V> {
 
         @Override
         public ByteBuffer encodeValue(V v) {
+            if (isSerializable(v)) {
+                return ByteBuffer.wrap(SerializationUtils.serialize((Serializable) v));
+            }
             ByteSerializationWrapper<V> wrapper = new ByteSerializationWrapper<>(v);
             byte[] array = SerializationUtils.serialize(wrapper);
             return ByteBuffer.wrap(array);

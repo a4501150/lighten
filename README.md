@@ -17,7 +17,8 @@ This component can auto handle failure and reconnect to your websocket in the fl
 
 case1 simple direct subscription
 
-`
+```java
+
 
     private static void simpleDirectSubscription() throws InterruptedException {         
          Duration duration = Duration.ofMinutes(1);
@@ -28,11 +29,12 @@ case1 simple direct subscription
          Thread.sleep(1000 * 5);
          subscribtion.dispose();
      }
-`
+```
 
 case2 simple direct subscription with subtopic
 
-`
+```java
+
 
     private static void simpleSubTopicSubscription() throws InterruptedException {
         Duration duration = Duration.ofMinutes(1);
@@ -45,11 +47,11 @@ case2 simple direct subscription with subtopic
         Thread.sleep(1000 * 5);
         subscribtion.dispose();
     }
-`
+```
 
 case3 subscription with subtopic and msg
 
-`
+```java
 
     private static void subscriptionWithSubscriptionMsg() throws InterruptedException {
         Duration duration = Duration.ofMinutes(1);
@@ -71,12 +73,31 @@ case3 subscription with subtopic and msg
         subscribtion.dispose();
 
     }
-`
+```
 
 ## Kafka
 
 ## Redis
 
 A wrapper for lettuce, but with auto byte conversion.
+
+So you can use it just like a hashmap.
+
+```java
+
+
+        final ConcurrentHashMap<String, ConcurrentHashMap<String, String>> map = new ConcurrentHashMap<>();
+        map.put("test", new ConcurrentHashMap<>());
+        map.get("test").put("inner", "innerValue");
+
+        LightenRedisClient<String, ConcurrentHashMap<String, ConcurrentHashMap<String, String>>> lightenRedisClientUnderTest2 = new LightenRedisClient<>("127.0.0.1", "");
+
+        lightenRedisClientUnderTest2.put("mapTesting", map);
+
+        ConcurrentHashMap<String, ConcurrentHashMap<String, String>> obtainedMap = lightenRedisClientUnderTest2.get("mapTesting");
+
+        Assertions.assertEquals(map.toString(), obtainedMap.toString());
+```
+
 
 ## Database
