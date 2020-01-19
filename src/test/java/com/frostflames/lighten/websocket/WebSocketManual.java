@@ -1,19 +1,13 @@
 package com.frostflames.lighten.websocket;
 
 import io.reactivex.disposables.Disposable;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 
 public class WebSocketManual {
 
-    public static void main(String[] args) throws InterruptedException {
-
-        //simpleDirectSubscription();
-        //simpleSubTopicSubscription();
-        //subscriptionWithSubscriptionMsg();
-
-    }
-
+    @Test
     // case 1 simple direct subscription
     private static void simpleDirectSubscription() throws InterruptedException {
         Duration duration = Duration.ofMinutes(1);
@@ -26,6 +20,7 @@ public class WebSocketManual {
         subscribtion.dispose();
     }
 
+    @Test
     // case 2 simple direct subscription with subtopic
     private static void simpleSubTopicSubscription() throws InterruptedException {
         Duration duration = Duration.ofMinutes(1);
@@ -39,6 +34,7 @@ public class WebSocketManual {
         subscribtion.dispose();
     }
 
+    @Test
     // case 3 subscription with subtopic and msg
     private static void subscriptionWithSubscriptionMsg() throws InterruptedException {
         Duration duration = Duration.ofMinutes(1);
