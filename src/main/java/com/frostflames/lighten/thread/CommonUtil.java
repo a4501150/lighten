@@ -1,8 +1,14 @@
 package com.frostflames.lighten.thread;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.concurrent.TimeUnit;
 
 public class CommonUtil {
+
+    private final static Logger logger = LoggerFactory.getLogger(CommonUtil.class);
+
     /**
      * This method simulate c++ sleep() call, reduce boilerplate code.
      * Beware this is EXACTLY used for sleep no other goals.
@@ -17,7 +23,8 @@ public class CommonUtil {
         } catch (InterruptedException ex)
         {
             Thread.currentThread().interrupt();
-            System.err.println("Sleep was interrupted, check your code invoke this method");
+            logger.error("Sleep was interrupted, check your code invoke this method");
         }
     }
+
 }

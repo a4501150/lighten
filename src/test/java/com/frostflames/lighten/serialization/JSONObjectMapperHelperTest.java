@@ -77,5 +77,38 @@ class JSONObjectMapperHelperTest {
         Assertions.assertEquals("{userId=1, id=1, title=delectus aut autem, completed=false}", result.toString());
     }
 
+    @Test
+    void testToJSON() throws Exception {
+        // Setup
+        // Run the test
+        LinkedHashMap<String, String> result = JSONObjectMapperHelper.readValueFromJSON("{\n" +
+                "  \"userId\": 1,\n" +
+                "  \"id\": 1,\n" +
+                "  \"title\": \"delectus aut autem\",\n" +
+                "  \"completed\": false\n" +
+                "}", new TypeReference<LinkedHashMap<String, String>>(){});
+
+        result = JSONObjectMapperHelper.readValueFromJSON(JSONObjectMapperHelper.toJSON(result), new TypeReference<LinkedHashMap<String, String>>(){});
+
+        // Verify the results
+        Assertions.assertEquals("{userId=1, id=1, title=delectus aut autem, completed=false}", result.toString());
+    }
+
+    @Test
+    void testToCompactJSON() throws Exception {
+        // Setup
+        // Run the test
+        LinkedHashMap<String, String> result = JSONObjectMapperHelper.readValueFromJSON("{\n" +
+                "  \"userId\": 1,\n" +
+                "  \"id\": 1,\n" +
+                "  \"title\": \"delectus aut autem\",\n" +
+                "  \"completed\": false\n" +
+                "}", new TypeReference<LinkedHashMap<String, String>>(){});
+
+        result = JSONObjectMapperHelper.readValueFromJSON(JSONObjectMapperHelper.toCompactJSON(result), new TypeReference<LinkedHashMap<String, String>>(){});
+
+        // Verify the results
+        Assertions.assertEquals("{userId=1, id=1, title=delectus aut autem, completed=false}", result.toString());
+    }
 
 }
