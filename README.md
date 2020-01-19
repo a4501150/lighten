@@ -77,6 +77,25 @@ case3 subscription with subtopic and msg
 
 ## Kafka
 
+A wrapper on top of official producer / consumer API.
+
+```java
+LightenKafkaClient client = new LightenKafkaClient("127.0.0,1");
+
+// consumer
+client.initConsumer("groupID", "offsetResetType", false, false);
+Flowable<String> result = lightenKafkaClientUnderTest.listenToTopic("topic");
+
+result.dispose(); // free resource and cutoff stream
+
+// producer
+client.initProducer("clientID");
+client.publishMessage("topic", "payload");
+
+
+```
+
+
 ## Redis
 
 A wrapper for lettuce, but with auto byte conversion.
