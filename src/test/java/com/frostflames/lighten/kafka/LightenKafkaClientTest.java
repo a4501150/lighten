@@ -10,7 +10,7 @@ class LightenKafkaClientTest {
 
     @BeforeEach
     void setUp() {
-        lightenKafkaClientUnderTest = new LightenKafkaClient("127.0.0.1");
+        lightenKafkaClientUnderTest = new LightenKafkaClient("127.0.0.1:9092");
         lightenKafkaClientUnderTest.initProducer("clientID");
         lightenKafkaClientUnderTest.initConsumer("groupID", "latest", false, false);
     }
@@ -23,6 +23,7 @@ class LightenKafkaClientTest {
         final Flowable<String> result = lightenKafkaClientUnderTest.listenToTopic("topic");
 
         // Verify the results
+        result.subscribe().dispose();
     }
 
     @Test
