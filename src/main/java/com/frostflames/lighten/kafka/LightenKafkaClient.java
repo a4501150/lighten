@@ -117,6 +117,7 @@ public class LightenKafkaClient {
         while (true) {
 
             if (newSubscriptionEntered.get()) {
+                logger.info("newSubscriptionEntered!");
                 consumer.subscribe(topic2streamMap.keySet());
                 newSubscriptionEntered.set(false);
             }
