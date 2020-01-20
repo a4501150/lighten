@@ -130,11 +130,10 @@ public class LightenKafkaClient {
 
             ConsumerRecords<String, String> consumerRecords = consumer.poll(Duration.ofMillis(1000));
             topic2streamMap.forEach((topic, streamPublisher) -> {
-                consumerRecords.records(topic).forEach(record->{
+                consumerRecords.records(topic).forEach(record -> {
                     if (!streamPublisher.hasSubscribers()) {
                         return;
                     }
-
                     streamPublisher.onNext(record.value());
 
                     if ((!autoCommit) && shouldCommit) {
