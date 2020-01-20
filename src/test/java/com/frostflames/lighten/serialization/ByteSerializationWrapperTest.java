@@ -10,5 +10,7 @@ class ByteSerializationWrapperTest {
         Object placeHolder = new Object();
         ByteSerializationWrapper<Object> byteSerializationWrapperUnderTest = new ByteSerializationWrapper<>(placeHolder);
         Assertions.assertEquals(byteSerializationWrapperUnderTest.getObject(), placeHolder);
+        byteSerializationWrapperUnderTest.setObject(placeHolder);
+        Assertions.assertEquals(byteSerializationWrapperUnderTest.getObject(), placeHolder);
     }
 }

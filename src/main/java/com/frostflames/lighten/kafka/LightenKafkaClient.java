@@ -54,6 +54,11 @@ public class LightenKafkaClient {
                              boolean shouldCommit,
                              boolean autoCommit) {
 
+        if (consumer != null) {
+            logger.debug("Please dont re-initialize consumer");
+            return;
+        }
+
         this.groupID = groupID;
         this.offsetResetType = offsetResetType;
         this.shouldCommit = shouldCommit;
@@ -64,6 +69,11 @@ public class LightenKafkaClient {
     }
 
     public Flowable<String> listenToTopic(String topic) {
+        if (consumer == null) {
+            logger.debug("please initialize consumer");
+            throw new RuntimeException("consumer not initialize");
+        }
+
         if (topic2streamMap.containsKey(topic)) {
             return topic2streamMap.get(topic);
         }
@@ -120,6 +130,10 @@ public class LightenKafkaClient {
             ConsumerRecords<String, String> consumerRecords = consumer.poll(Duration.ofMillis(1000));
             topic2streamMap.forEach((topic, streamPublisher) -> {
                 consumerRecords.records(topic).forEach(record->{
+                    if (!streamPublisher.hasSubscribers()) {
+                        return;
+                    }
+
                     streamPublisher.onNext(record.value());
 
                     if ((!autoCommit) && shouldCommit) {
@@ -134,6 +148,11 @@ public class LightenKafkaClient {
 
     // Producer Code Start
     public void initProducer(String clientID) {
+        if (producer != null) {
+            logger.debug("Please dont re-initialize producer");
+            return;
+        }
+
         this.clientID = clientID;
         this.producer = new KafkaProducer<>(getProducerProperties());
     }
@@ -153,6 +172,9 @@ public class LightenKafkaClient {
      * @param payload
      */
     public void publishMessage(String topic, String payload) {
+        if (producer == null) {
+            logger.debug("please initialize producer first");
+        }
         this.producer.send(new ProducerRecord<>(topic, payload));
     }
 
